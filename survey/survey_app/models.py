@@ -2,7 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-from django.db import models
 
 # Create your models here.
 
@@ -12,7 +11,7 @@ from django.contrib.auth.models import User
 
 class Survey(models.Model):
     title = models.CharField(max_length=200)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -35,7 +34,8 @@ class Option(models.Model):
         return self.text
 
 
-class Response(models.Model):
+class Answer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
     option = models.ForeignKey(Option, on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 

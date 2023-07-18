@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Survey, Question, Option, Response
+from .models import Survey, Question, Option, Answer
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -13,7 +13,9 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'text', 'options']
+        fields = '__all__'
+        # Add the following line to allow partial updates
+        extra_kwargs = {'text': {'required': False}}
 
 
 class SurveySerializer(serializers.ModelSerializer):
@@ -24,7 +26,7 @@ class SurveySerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'questions']
 
 
-class ResponseSerializer(serializers.ModelSerializer):
+class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Response
+        model = Answer
         fields = '__all__'

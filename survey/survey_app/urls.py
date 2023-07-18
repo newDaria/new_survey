@@ -4,12 +4,27 @@ from . import views
 app_name = 'survey_app'
 
 urlpatterns = [
-    path('surveys/', views.SurveyList.as_view(), name='survey-list'),
-    path('surveys/<int:pk>/', views.SurveyDetail.as_view(), name='survey-detail'),
-    path('questions/', views.QuestionList.as_view(), name='question-list'),
-    path('questions/<int:pk>/', views.QuestionDetail.as_view(), name='question-detail'),
-    path('options/', views.OptionList.as_view(), name='option-list'),
-    path('options/<int:pk>/', views.OptionDetail.as_view(), name='option-detail'),
-    path('responses/', views.ResponseList.as_view(), name='response-list'),
-    path('responses/<int:pk>/', views.ResponseDetail.as_view(), name='response-detail'),
+    # done
+    path('surveys/', views.SurveyListView.as_view(),name= 'survey-list'),
+    # done
+    path('surveys/create/', views.SurveyCreateView.as_view(),name= 'survey-create' ),
+    # done can see title and questions
+    path('surveys/<int:pk>/', views.SurveyDetailView.as_view(),name= 'survey-detail'),
+    # dont need since we can see it at survey
+    # path('questions/<int:survey_id>/', views.QuestionDetailView.as_view(),name='question-list'),
+    # done
+    path('survey/question/<int:pk>/update/',views.QuestionUpdateView.as_view(),name='question-update' ),
+    # done
+    path('survey/<int:survey_id>/question/create',views.QuestionCreateView.as_view(),name= 'question-create'),
+    # done
+    path('survey/question/<int:pk>/update',views.QuestionDetailView.as_view(),name='question-update' ),
+    # done
+    path('question/<int:question_id>/option/create',views.OptionCreateView.as_view(),name= 'option-create'),
+    # done
+    path('question/option/<int:pk>/update',views.OptionDetailView.as_view(),name='option-update' ),
+    # doesnt work
+    path('answer/<int:question_id>/update/',views.AnswerDetailView.as_view(),name='answer-update' ),
+
+
 ]
+
