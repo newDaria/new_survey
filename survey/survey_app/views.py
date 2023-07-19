@@ -1,9 +1,11 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
+from rest_framework import status
 from .models import Survey, Question, Option, Answer
 from .serializers import SurveySerializer, QuestionSerializer, OptionSerializer, AnswerSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 
 
 class SurveyCreateView(generics.CreateAPIView):
@@ -63,6 +65,7 @@ class QuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Question.objects.all()
     lookup_field = 'pk'
 
+
 class OptionCreateView(generics.CreateAPIView):
     serializer_class = OptionSerializer
 
@@ -75,11 +78,30 @@ class OptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Option.objects.all()
     lookup_field = 'pk'
 
-class AnswerDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Answer.objects.all()
+class AnswerQuestionView(generics.CreateAPIView):
     serializer_class = AnswerSerializer
-    lookup_field = 'question_id'  # Assuming you want to use 'question_id' as the lookup field
 
-    def get_queryset(self):
+    def get(self, request, *args, **kwargs):
         question_id = self.kwargs['question_id']
-        return self.queryset.filter(question__id=question_id)
+        question = get_object_or_404(Question, id=question_id)
+        question_serializer = QuestionSerializer(question)
+        options = question.option_set.all()
+        options_serializer = OptionSerializer(options, many=True)
+
+        response_data = {
+            'question': question_serializer.data,
+            'options': options_serializer.data,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        question_id = self.kwargs['question_id']
+        question = get_object_or_404(Question, id=question_id)
+
+        option = self.get_serializer(data=request.data)
+        option.is_valid(raise_exception=True)
+        self.perform_create(option)
+
+        headers = self.get_success_headers(option.data)
+        return Response(option.data, status=status.HTTP_201_CREATED, headers=headers)
