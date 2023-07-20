@@ -10,6 +10,7 @@ class OptionSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True, read_only=True)
+    text = serializers.CharField(required=False)
 
     class Meta:
         model = Question

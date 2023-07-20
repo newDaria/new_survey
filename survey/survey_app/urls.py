@@ -1,17 +1,37 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import SurveyViewSet, QuestionViewSet, OptionViewSet, AnswerViewSet, SurveyQuestionsView, QuestionOptionsView
 
-app_name = 'survey_app'
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'surveys', SurveyViewSet)
+router.register(r'questions', QuestionViewSet)
+router.register(r'options', OptionViewSet)
+router.register(r'answers', AnswerViewSet)
 
 urlpatterns = [
-    path('surveys/', views.SurveyListView.as_view(),name= 'survey-list'),
-    path('surveys/create/', views.SurveyCreateView.as_view(),name= 'survey-create' ),
-    path('surveys/<int:pk>/', views.SurveyDetailView.as_view(),name= 'survey-detail'),
-    path('survey/question/<int:pk>/update/',views.QuestionUpdateView.as_view(),name='question-update' ),
-    path('survey/<int:survey_id>/question/create',views.QuestionCreateView.as_view(),name= 'question-create'),
-    path('survey/question/<int:pk>/update',views.QuestionDetailView.as_view(),name='question-update' ),
-    path('question/<int:question_id>/option/create',views.OptionCreateView.as_view(),name= 'option-create'),
-    path('question/option/<int:pk>/update',views.OptionDetailView.as_view(),name='option-update' ),
-    path('questions/<int:question_id>/answer/', views.AnswerQuestionView.as_view(), name='answer-question'),
+    path('', include(router.urls)),
+    path('surveys/<int:survey_pk>/questions/', SurveyQuestionsView.as_view({'get': 'list'}), name='survey-questions'),
+    path('questions/<int:question_pk>/options/', QuestionOptionsView.as_view({'get': 'list', 'post': 'create'}), name='question-options'),
 ]
+
+# GET /surveys/
+# POST /surveys/
+# PUT /surveys/<survey_id>/
+
+# GET /questions/
+# POST /questions/
+# PUT /questions/<question_id>/
+
+
+# GET /options/
+# POST /options/
+# PUT /options/<option_id>/
+
+# GET /answers/
+# POST /answers/
+# PUT /answers/<option_id>/
+
+
+
 
