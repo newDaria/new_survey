@@ -31,3 +31,15 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = '__all__'
+
+    def create(self, validated_data):
+        question_id = validated_data['question']['id']
+        option_id = validated_data['option']['id']
+
+        # Retrieve the related Question and Option objects
+        question = Question.objects.get(id=question_id)
+        option = Option.objects.get(id=option_id)
+
+        # Create the Answer object with the correct question and option
+        answer = Answer.objects.create(question=question, option=option)
+        return answer
