@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Survey, Question, Option, Answer
+from django.contrib.auth.models import User
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -21,10 +22,11 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class SurveySerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
+    creator = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())  # or StringRelatedField
 
     class Meta:
         model = Survey
-        fields = ['id', 'title', 'questions']
+        fields = ['id', 'title', 'questions','creator']
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -32,14 +34,15 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = Answer
         fields = '__all__'
 
-    def create(self, validated_data):
-        question_id = validated_data['question']['id']
-        option_id = validated_data['option']['id']
+    class AnswerSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Answer
+            fields = '__all__'
 
-        # Retrieve the related Question and Option objects
-        question = Question.objects.get(id=question_id)
-        option = Option.objects.get(id=option_id)
+        def create(self, validated_data):
+            question = validated_data['question']
+            option = validated_data['option']
 
-        # Create the Answer object with the correct question and option
-        answer = Answer.objects.create(question=question, option=option)
-        return answer
+            answer = Answer.objects.create(question=question, option=option)
+            return answer
+

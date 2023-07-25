@@ -8,9 +8,9 @@ class UrlsTest(TestCase):
     def test_survey_questions_url(self):
         url = reverse('survey-questions', kwargs={'survey_pk': 1})
         resolved_view = resolve(url).func
-        self.assertEqual(resolved_view.view_class, SurveyQuestionsView)
+        self.assertEqual(resolved_view.__name__, 'SurveyQuestionsView')
 
     def test_question_options_url(self):
         url = reverse('question-options', kwargs={'question_pk': 1})
         resolved_view = resolve(url).func
-        self.assertEqual(resolved_view.view_class, QuestionOptionsView)
+        self.assertEqual(resolved_view.__name__, 'QuestionOptionsView')
