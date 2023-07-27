@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from .models import Survey, Question, Option, Answer
 from .serializers import SurveySerializer, QuestionSerializer, OptionSerializer, AnswerSerializer
+# from .signals import send_survey_creation_email
 
 class SurveyViewSet(viewsets.ModelViewSet):
     queryset = Survey.objects.all()
