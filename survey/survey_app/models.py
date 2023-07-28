@@ -31,6 +31,9 @@ class Answer(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.respondent.username} - {self.survey.title} - {self.question.text} - {self.option.text}"
+        creator_username = self.creator.username if self.creator else "Unknown"
+        survey_title = self.question.survey.title if self.question.survey else "Unknown"
+        question_text = self.question.text if self.question else "Unknown"
+        option_text = self.option.text if self.option else "Unknown"
 
-
+        return f"{creator_username} - {survey_title} - {question_text} - {option_text}"
