@@ -8,3 +8,4 @@ class SurveyAppConfig(AppConfig):
 
     def ready(self):
         import survey_app.signals
+        from . import cron
