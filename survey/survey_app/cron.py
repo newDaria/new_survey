@@ -4,7 +4,7 @@ from survey_app.models import Survey, Answer
 from django_cron import CronJobBase, Schedule
 
 class DailySurveySubmissionsEmail(CronJobBase):
-    RUN_EVERY_MINS = 2  # every
+    RUN_EVERY_MINS = 60*120  # every
 
     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
     code = 'survey_app.my_cron_job'
