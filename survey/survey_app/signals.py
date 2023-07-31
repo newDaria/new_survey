@@ -22,17 +22,17 @@ def send_survey_creation_email(sender, instance, created, **kwargs):
         # Send the email using Anymail's send method
         email.send()
 
-@receiver(post_save, sender=Answer)
-def enforce_submission_limit(sender, instance, created, **kwargs):
-    if created:
-        user = instance.creator
-        if user:
-            # Get the current date
-            today = timezone.now().date()
-
-            # Count the number of answers submitted by the user on the current date
-            user_submission_count = Answer.objects.filter(creator=user, created_at__date=today).count()
-
-            if user_submission_count > 5:
-                # Restrict the user from submitting more than 5 answers per day
-                raise ValueError("You have already submitted the maximum allowed answers for today.")
+# @receiver(post_save, sender=Answer)
+# def enforce_submission_limit(sender, instance, created, **kwargs):
+#     if created:
+#         user = instance.creator
+#         if user:
+#             # Get the current date
+#             today = timezone.now().date()
+#
+#             # Count the number of answers submitted by the user on the current date
+#             user_submission_count = Answer.objects.filter(creator=user, created_at__date=today).count()
+#
+#             if user_submission_count > 5:
+#                 # Restrict the user from submitting more than 5 answers per day
+#                 raise ValueError("You have already submitted the maximum allowed answers for today.")

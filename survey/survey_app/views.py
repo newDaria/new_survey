@@ -28,6 +28,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
 
+    def perform_create(self, serializer):
+        # Manually call the serializer's create method with the creator set as the request's user
+        serializer.save(creator=self.request.user)
 class SurveyQuestionsView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 

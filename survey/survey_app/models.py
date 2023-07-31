@@ -26,7 +26,7 @@ class Option(models.Model):
         return self.text
 
 class AnswerManager(models.Manager):
-    def user_submission_count_for_day(self, user):
+    def user_submission_count_for_day(self, user,date):
         today = timezone.now().date()
         return self.filter(creator=user, created_at__date=today).count()
 
@@ -34,7 +34,7 @@ class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
     option = models.ForeignKey(Option, on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     objects = AnswerManager()
 
