@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Survey, Question, Option, Answer
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -12,12 +13,14 @@ class OptionSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True, read_only=True)
     text = serializers.CharField(required=False)
+    # Add the following line to make the 'survey' field required
+    survey = serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all(), write_only=True)
 
     class Meta:
         model = Question
         fields = '__all__'
-        # Add the following line to allow partial updates
         extra_kwargs = {'text': {'required': False}}
+
 
 
 class SurveySerializer(serializers.ModelSerializer):
@@ -27,6 +30,19 @@ class SurveySerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
         fields = ['id', 'title', 'questions','creator']
+#
+# class AnswerSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Answer
+#         fields = '__all__'
+#
+#     def create(self, validated_data):
+#         question = validated_data['question']
+#         option = validated_data['option']
+#
+#         answer = Answer.objects.create(question=question, option=option)
+#         return answer
+
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -34,15 +50,24 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = Answer
         fields = '__all__'
 
-    class AnswerSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = Answer
-            fields = '__all__'
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if user:
+            # Get the current date
+            today = timezone.now().date()
 
-        def create(self, validated_data):
-            question = validated_data['question']
-            option = validated_data['option']
+            # Count the number of answers submitted by the user on the current date
+            user_submission_count = Answer.objects.user_submission_count_for_day(user, today)
+            print(user_submission_count)
 
-            answer = Answer.objects.create(question=question, option=option)
-            return answer
 
+            if user_submission_count >= 5:
+                print("You have already submitted the maximum allowed answers for today.")
+                raise serializers.ValidationError("You have already submitted the maximum allowed answers for today.")
+
+
+        question = validated_data['question']
+        option = validated_data['option']
+
+        answer = Answer.objects.create(question=question, option=option, creator=user)
+        return answer

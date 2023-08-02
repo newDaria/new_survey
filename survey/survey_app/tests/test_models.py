@@ -2,7 +2,6 @@ from django.test import TestCase
 from survey_app.models import Survey, Question, Option, Answer
 from django.contrib.auth.models import User
 
-
 class SurveyModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='testpassword')

@@ -7,6 +7,11 @@ class Survey(models.Model):
     title = models.CharField(max_length=100)
     creator = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
+    class Meta:
+        permissions = [
+            ('can_update_survey', 'Can update survey'),
+        ]
+
     def __str__(self):
         return self.title
 

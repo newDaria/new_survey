@@ -1,6 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import SurveyViewSet, QuestionViewSet, OptionViewSet, AnswerViewSet, SurveyQuestionsView, QuestionOptionsView
+from django.urls import path
+from .views import SurveyViewSet, QuestionViewSet, OptionViewSet, AnswerViewSet, SurveyQuestionsView, QuestionOptionsView, UpdateSurveyAPIView
+from rest_framework.exceptions import PermissionDenied
+
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -13,6 +16,9 @@ urlpatterns = [
     path('', include(router.urls)),
     path('surveys/<int:survey_pk>/questions/', SurveyQuestionsView.as_view({'get': 'list'}), name='survey-questions'),
     path('questions/<int:question_pk>/options/', QuestionOptionsView.as_view({'get': 'list', 'post': 'create'}), name='question-options'),
+
+    # Add the URL pattern for UpdateSurveyAPIView
+    path('surveys/<int:survey_id>/update/', UpdateSurveyAPIView.as_view(), name='update-survey'),
 ]
 
 # GET /surveys/
