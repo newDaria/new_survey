@@ -1,7 +1,19 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from django.urls import path
-from .views import SurveyViewSet, QuestionViewSet, OptionViewSet, AnswerViewSet, SurveyQuestionsView, QuestionOptionsView, UpdateSurveyAPIView
+from .views import (
+    SurveyViewSet,
+    QuestionViewSet,
+    OptionViewSet,
+    AnswerViewSet,
+    SurveyQuestionsView,
+    QuestionOptionsView,
+    UpdateSurveyAPIView,
+    SignupAPIView,
+    LoginAPIView,
+    LogoutAPIView,
+)
+
 from rest_framework.exceptions import PermissionDenied
 
 
@@ -19,6 +31,9 @@ urlpatterns = [
 
     # Add the URL pattern for UpdateSurveyAPIView
     path('surveys/<int:survey_id>/update/', UpdateSurveyAPIView.as_view(), name='update-survey'),
+    path('signup/', SignupAPIView.as_view(), name='signup'),
+    path('login/', LoginAPIView.as_view(), name='login'),
+    path('logout/', LogoutAPIView.as_view(), name='logout'),
 ]
 
 # GET /surveys/

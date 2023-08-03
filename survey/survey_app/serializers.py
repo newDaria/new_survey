@@ -30,19 +30,6 @@ class SurveySerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
         fields = ['id', 'title', 'questions','creator']
-#
-# class AnswerSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Answer
-#         fields = '__all__'
-#
-#     def create(self, validated_data):
-#         question = validated_data['question']
-#         option = validated_data['option']
-#
-#         answer = Answer.objects.create(question=question, option=option)
-#         return answer
-
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -75,3 +62,23 @@ class AnswerSerializer(serializers.ModelSerializer):
 
         answer = Answer.objects.create(question=question, option=option, creator=user)
         return answer
+
+
+class SignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email', 'first_name', 'last_name']
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
