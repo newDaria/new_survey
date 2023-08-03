@@ -1,8 +1,12 @@
 from django.urls import resolve
-from django.test import TestCase
-from django.urls import reverse
 from survey_app.views import SurveyQuestionsView, QuestionOptionsView, UpdateSurveyAPIView
 from survey_app.views import UpdateSurveyAPIView
+from django.test import TestCase
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
+from survey_app.models import Survey
 
 
 class UrlsTest(TestCase):
@@ -16,12 +20,7 @@ class UrlsTest(TestCase):
         resolved_view = resolve(url).func
         self.assertEqual(resolved_view.__name__, 'QuestionOptionsView')
 
-from django.test import TestCase
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
-from django.contrib.auth.models import User
-from survey_app.models import Survey
+
 
 class UpdateSurveyAPIViewTest(TestCase):
     def setUp(self):
