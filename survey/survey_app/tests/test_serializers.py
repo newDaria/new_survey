@@ -91,15 +91,14 @@ class AnswerSerializerTestCase(TestCase):
             serializer.is_valid(raise_exception=True)
 
         self.assertIn("option", cm.exception.detail)
-    # TODO
+
     def test_answer_submission_missing_question(self):
         # Attempt to create an answer without providing the 'question' field
         answer_data = {'option': self.option.id}
-        serializer = AnswerSerializer(data=answer_data)
+        serializer = AnswerSerializer(data=answer_data, context={'request': None})
 
-        # Check if the serializer is NOT valid, as it should raise a validation error
-        with self.assertRaises(ValidationError) as cm:
-            serializer.is_valid(raise_exception=True)
+        # Check if the serializer is NOT valid
+        is_valid = serializer.is_valid()
 
         # Check if the error message contains the expected field error for 'question'
         self.assertIn('question', serializer.errors)

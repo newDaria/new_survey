@@ -46,9 +46,13 @@ class SurveySerializer(serializers.ModelSerializer):
 
 
 class AnswerSerializer(serializers.ModelSerializer):
+    # Add the 'required=True' parameter to the 'question' field
+    question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all(), required=True)
+    option = serializers.PrimaryKeyRelatedField(queryset=Option.objects.all())
+
     class Meta:
         model = Answer
-        fields = '__all__'
+        fields = ['question', 'option']
 
     def create(self, validated_data):
         user = self.context['request'].user
