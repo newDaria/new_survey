@@ -21,10 +21,10 @@ class SurveyViewSet(viewsets.ModelViewSet):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
     permission_classes = [IsAuthenticated]  # Require authentication
-
-    def perform_create(self, serializer):
-        # Set the creator field to the current user (assuming you have access to the user object)
-        serializer.save(creator=self.request.user)
+    #
+    # def perform_create(self, serializer):
+    #     # Set the creator field to the current user (assuming you have access to the user object)
+    #     serializer.save(creator=self.request.user)
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
@@ -82,9 +82,27 @@ class QuestionOptionsView(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+# class UpdateSurveyAPIView(UpdateAPIView):
+#     serializer_class = SurveySerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_queryset(self):
+#         return Survey.objects.all()
+#
+#     def get_object(self):
+#         queryset = self.get_queryset()
+#         survey = get_object_or_404(queryset, pk=self.kwargs.get('survey_id'))
+#
+#         # Check if the current user is the creator of the survey
+#         if self.request.user != survey.creator:
+#             raise PermissionDenied("You do not have permission to update this survey.")
+#
+#         return survey
+
+from .permissions import CanUpdateSurveyPermission
 class UpdateSurveyAPIView(UpdateAPIView):
     serializer_class = SurveySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanUpdateSurveyPermission]
 
     def get_queryset(self):
         return Survey.objects.all()
@@ -92,11 +110,7 @@ class UpdateSurveyAPIView(UpdateAPIView):
     def get_object(self):
         queryset = self.get_queryset()
         survey = get_object_or_404(queryset, pk=self.kwargs.get('survey_id'))
-
-        # Check if the current user is the creator of the survey
-        if self.request.user != survey.creator:
-            raise PermissionDenied("You do not have permission to update this survey.")
-
+        self.check_object_permissions(self.request, survey)  # Check permissions
         return survey
 
 
@@ -109,20 +123,6 @@ class SignupAPIView(APIView):
         # Print validation errors to the console
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-class LoginAPIView(APIView):
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_200_OK)
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-class LogoutAPIView(APIView):
-    def post(self, request):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
 
 class LoginAPIView(APIView):
     serializer_class = LoginSerializer
@@ -146,3 +146,4 @@ class LogoutAPIView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+

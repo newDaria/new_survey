@@ -29,19 +29,14 @@ class Option(models.Model):
 
     def __str__(self):
         return self.text
+#
 
-class AnswerManager(models.Manager):
-    def user_submission_count_for_day(self, user,date):
-        today = timezone.now().date()
-        return self.filter(creator=user, created_at__date=today).count()
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
     option = models.ForeignKey(Option, on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-
-    objects = AnswerManager()
 
     def __str__(self):
         creator_username = self.creator.username if self.creator else "Unknown"
@@ -51,4 +46,7 @@ class Answer(models.Model):
 
         return f"{creator_username} - {survey_title} - {question_text} - {option_text}"
 
+    @staticmethod
+    def user_submission_count_for_day(user, date):
+        return Answer.objects.filter(creator=user, created_at__date=date).count()
 

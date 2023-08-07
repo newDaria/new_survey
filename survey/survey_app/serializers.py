@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Survey, Question, Option, Answer
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -12,16 +13,21 @@ class OptionSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True, read_only=True)
-    text = serializers.CharField(required=False)
-    # Add the following line to make the 'survey' field required
     survey = serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all(), write_only=True)
 
     class Meta:
         model = Question
-        fields = '__all__'
+        fields = ['id', 'text', 'survey', 'options']
         extra_kwargs = {'text': {'required': False}}
 
 
+User = get_user_model()
+
+def get_request_user(serializer):
+    try:
+        return serializer.context['request'].user
+    except KeyError:
+        return None
 
 class SurveySerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
@@ -29,7 +35,14 @@ class SurveySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Survey
-        fields = ['id', 'title', 'questions','creator']
+        fields = ['id', 'title', 'questions', 'creator']
+
+    def create(self, validated_data):
+        # Set the creator field to the current user
+        request_user = get_request_user(self)
+        if request_user is not None:
+            validated_data['creator'] = request_user
+        return super().create(validated_data)
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -43,12 +56,12 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        if user:
+        if user.is_authenticated:
             # Get the current date
             today = timezone.now().date()
 
             # Count the number of answers submitted by the user on the current date
-            user_submission_count = Answer.objects.user_submission_count_for_day(user, today)
+            user_submission_count = Answer.user_submission_count_for_day(user, today)
             print(user_submission_count)
 
 
