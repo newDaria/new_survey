@@ -16,7 +16,6 @@ from survey_app.models import Survey
 from rest_framework.exceptions import PermissionDenied
 
 
-
 #     def has_permission(self, request, view):
 #         survey_id = view.kwargs.get('survey_id')
 #         try:
