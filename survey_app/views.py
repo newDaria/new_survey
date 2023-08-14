@@ -124,6 +124,13 @@ class SignupAPIView(APIView):
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.FILES.get('avatar'):
+            self.object.avatar = self.request.FILES['avatar']
+            self.object.save()
+        return response
+
 class LoginAPIView(APIView):
     serializer_class = LoginSerializer
 
@@ -146,4 +153,7 @@ class LogoutAPIView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+
+
+
 

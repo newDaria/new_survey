@@ -1,10 +1,11 @@
 from django.test import TestCase
 from survey_app.models import Survey, Question, Option, Answer
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from survey_app.models import UserProfile
 
 class SurveyModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
 
     def test_survey_title(self):
@@ -16,7 +17,7 @@ class SurveyModelTest(TestCase):
 
 class QuestionModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')
 
@@ -29,7 +30,7 @@ class QuestionModelTest(TestCase):
 
 class OptionModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')
         self.option = Option.objects.create(question=self.question, text='Test Option')
@@ -43,7 +44,7 @@ class OptionModelTest(TestCase):
 
 class AnswerModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')
         self.option = Option.objects.create(question=self.question, text='Test Option')

@@ -4,14 +4,15 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from survey_app.models import Survey, Question, Option, Answer
 from survey_app.serializers import SurveySerializer, QuestionSerializer, OptionSerializer, AnswerSerializer
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from survey_app.models import UserProfile
 
 class SurveyQuestionsViewTestCase(TestCase):
     def setUp(self):
         # the Django REST framework's APIClient is created, which allows us to make HTTP requests to the views.
         self.client = APIClient()
         # A test user is created using Django's User model. This user will be used for authentication during testing.
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         # The test client is forced to authenticate as the test user, so that the views can be tested with proper authentication.
         self.client.force_authenticate(user=self.user)
         # A test survey is created using the Survey model.
@@ -46,7 +47,7 @@ class SurveyQuestionsViewTestCase(TestCase):
 class QuestionOptionsViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         self.client.force_authenticate(user=self.user)
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')

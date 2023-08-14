@@ -2,7 +2,8 @@ from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 from survey_app.models import Survey, Question, Option, Answer
 from survey_app.serializers import OptionSerializer, QuestionSerializer, SurveySerializer, AnswerSerializer
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from survey_app.models import UserProfile
 
 class OptionSerializerTestCase(TestCase):
     def test_option_serializer(self):
@@ -18,7 +19,7 @@ class OptionSerializerTestCase(TestCase):
 class QuestionSerializerTestCase(TestCase):
     def test_question_serializer(self):
         # Create a test user
-        user = User.objects.create_user(username='testuser', password='testpassword')
+        user = UserProfile.objects.create_user(username='testuser', password='testpassword')
 
         # Use the newly created user instance in survey_data
         survey_data = {
@@ -42,7 +43,7 @@ class QuestionSerializerTestCase(TestCase):
 
 class SurveySerializerTestCase(TestCase):
     def test_survey_serializer(self):
-        user = User.objects.create_user(username='testuser', password='testpassword')
+        user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         survey_data = {'title': 'Test Survey', 'creator': user.id}
         serializer = SurveySerializer(data=survey_data)
         self.assertTrue(serializer.is_valid())
@@ -53,7 +54,7 @@ class SurveySerializerTestCase(TestCase):
 
 class AnswerSerializerTestCase(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')
         self.option = Option.objects.create(question=self.question, text='Test Option')

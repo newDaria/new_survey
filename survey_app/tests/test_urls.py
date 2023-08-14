@@ -5,8 +5,9 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from survey_app.models import Survey
+from survey_app.models import UserProfile
 
 
 class UrlsTest(TestCase):
@@ -25,13 +26,13 @@ class UrlsTest(TestCase):
 class UpdateSurveyAPIViewTest(TestCase):
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
 
         # Create a survey belonging to the test user
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
 
         # Create a regular user (not the creator of the survey)
-        self.other_user = User.objects.create_user(username='otheruser', password='otherpassword')
+        self.other_user = UserProfile.objects.create_user(username='otheruser', password='otherpassword')
 
         # Create an authenticated client for the test user
         self.client = APIClient()
