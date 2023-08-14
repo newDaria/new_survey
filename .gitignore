@@ -1,0 +1,8 @@
+*.pyc
+*.swp
+__pycache__
+env
+.env
+venv/
+.idea/
+*.sqlite3
