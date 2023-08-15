@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'django-insecure-=3kb$dnm@*##c@q-osw1185$m%o7s%oud-2bz!px9=#yi8_xec
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -44,8 +42,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'rest_framework.authtoken',
     'django_extensions',
-
-
+    'djoser',
 
 ]
 
@@ -79,7 +76,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'survey.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -89,7 +85,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -109,7 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -120,7 +114,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -139,12 +132,9 @@ EMAIL_HOST_USER = 'videotakvideo@gmail.com'
 EMAIL_HOST_PASSWORD = 'wvafyygjugpgnhcf'
 DEFAULT_FROM_EMAIL = 'videotakvideo@gmail.com'
 
-
-
 ANYMAIL = {
-    "SENDINBLUE_API_KEY": "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",
+    "SENDINBLUE_API_KEY": "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",
 }
-
 
 # CRONJOBS = [
 #     ('0 0 * * *', 'survey_app.cron.DailySurveySubmissionsEmail'),  # Run the cron job daily at midnight
@@ -160,3 +150,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 AUTH_USER_MODEL = 'survey_app.UserProfile'
+
+DJOSER = {
+    # ...
+    'PASSWORD_RESET_CONFIRM_URL': 'custom-reset-password/{uid}/{token}/',
+    # ...
+}
+

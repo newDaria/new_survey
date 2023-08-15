@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Survey, Question, Option, Answer
+from .models import Survey, Question, Option, Answer, UserProfileManager, UserProfile
 # from django.contrib.auth.models import User
 from survey_app.models import UserProfile
 from django.utils import timezone
@@ -82,8 +82,8 @@ class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = User
-        fields = ['username', 'password', 'email', 'first_name', 'last_name']
+        model = UserProfile
+        fields = ['username', 'password', 'email', 'first_name', 'last_name','profile_pic']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -96,3 +96,5 @@ class SignupSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+
+

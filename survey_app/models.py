@@ -27,32 +27,31 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=True)
-    name = models.CharField(max_length=255, null=True)
-    phone = models.CharField(max_length=20, null=True)
+    username = models.CharField(max_length=255, unique=True)
+    first_name = models.CharField(max_length=30, null=True)
+    last_name = models.CharField(max_length=30, null=True)
     profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     date_created = models.DateTimeField(null=True, default=timezone.now)
-    is_active = models.BooleanField(default=True)  # Add this field
-    is_staff = models.BooleanField(default=False)  # Add this field
-
-    def user_profile_pic_path(instance, filename):
-        # Generate a dynamic path to store the uploaded profile picture
-        return f'profile_pics/{filename}'
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     objects = UserProfileManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return self.name
-
+        if self.username:
+            return self.username
+        return self.email
 class Survey(models.Model):
     title = models.CharField(max_length=100)
-    creator = models.ForeignKey(UserProfile, null=True, on_delete=models.SET_NULL)
+    creator = models.ForeignKey(UserProfile, null=True, on_delete=models.CASCADE)
 
     class Meta:
         permissions = [
             ('can_update_survey', 'Can update survey'),
+            ('can_create_survey', 'Can create survey'),
         ]
 
     def __str__(self):
