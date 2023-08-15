@@ -131,6 +131,20 @@ class SignupAPIView(APIView):
             self.object.save()
         return response
 
+# class LoginAPIView(APIView):
+#     serializer_class = LoginSerializer
+#
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         if serializer.is_valid():
+#             username = serializer.validated_data['username']
+#             password = serializer.validated_data['password']
+#             user = authenticate(username=username, password=password)
+#             if user:
+#                 token, _ = Token.objects.get_or_create(user=user)
+#                 return Response({'token': token.key})
+#             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class LoginAPIView(APIView):
     serializer_class = LoginSerializer
 
@@ -139,9 +153,20 @@ class LoginAPIView(APIView):
         if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
+
+            # Print statements to debug
+            print(f"Received username: {username}")
+            print(f"Received password: {password}")
+
             user = authenticate(username=username, password=password)
             if user:
-                token, _ = Token.objects.get_or_create(user=user)
+                print(f"User authenticated: {user.username}")
+
+                token, created = Token.objects.get_or_create(user=user)
+
+                # Print statement to check token creation
+                print(f"Token created: {token.key}")
+
                 return Response({'token': token.key})
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
