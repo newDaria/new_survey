@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.contrib.auth.models import BaseUserManager
 
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -13,12 +14,29 @@ class UserProfileManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
 class UserProfile(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True)
     name = models.CharField(max_length=255, null=True)
     phone = models.CharField(max_length=20, null=True)
     profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    date_created = models.DateTimeField(auto_now_add=True, null=True, default=timezone.now)
+    date_created = models.DateTimeField(null=True, default=timezone.now)
+    is_active = models.BooleanField(default=True)  # Add this field
+    is_staff = models.BooleanField(default=False)  # Add this field
+
+    def user_profile_pic_path(instance, filename):
+        # Generate a dynamic path to store the uploaded profile picture
+        return f'profile_pics/{filename}'
 
     objects = UserProfileManager()
 
