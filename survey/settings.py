@@ -78,11 +78,22 @@ WSGI_APPLICATION = 'survey.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+#
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'new_survey',
+        'USER': 'new_survey',
+        'PASSWORD': '123456',
+        'HOST': 'localhost',
+        'PORT': '5432',  # Default PostgreSQL port
     }
 }
 
@@ -136,10 +147,6 @@ ANYMAIL = {
     "SENDINBLUE_API_KEY": "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",
 }
 
-# CRONJOBS = [
-#     ('0 0 * * *', 'survey_app.cron.DailySurveySubmissionsEmail'),  # Run the cron job daily at midnight
-# ]
-
 
 CRON_CLASSES = [
     "survey_app.cron.DailySurveySubmissionsEmail",
@@ -156,4 +163,6 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': 'custom-reset-password/{uid}/{token}/',
     # ...
 }
+
+
 

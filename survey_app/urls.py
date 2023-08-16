@@ -36,6 +36,7 @@ urlpatterns = [
     path('logout/', LogoutAPIView.as_view(), name='logout'),
 
     path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken'))
 
 
 ]

@@ -82,23 +82,6 @@ class QuestionOptionsView(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# class UpdateSurveyAPIView(UpdateAPIView):
-#     serializer_class = SurveySerializer
-#     permission_classes = [IsAuthenticated]
-#
-#     def get_queryset(self):
-#         return Survey.objects.all()
-#
-#     def get_object(self):
-#         queryset = self.get_queryset()
-#         survey = get_object_or_404(queryset, pk=self.kwargs.get('survey_id'))
-#
-#         # Check if the current user is the creator of the survey
-#         if self.request.user != survey.creator:
-#             raise PermissionDenied("You do not have permission to update this survey.")
-#
-#         return survey
-
 from .permissions import CanUpdateSurveyPermission
 class UpdateSurveyAPIView(UpdateAPIView):
     serializer_class = SurveySerializer
@@ -131,6 +114,34 @@ class SignupAPIView(APIView):
             self.object.save()
         return response
 
+
+
+class LoginAPIView(APIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+
+            user = authenticate(username=username, password=password)
+            if user:
+                print(f"User authenticated: {user.username}")
+                return Response({'message': 'Successfully logged in.'})
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+
+
 # class LoginAPIView(APIView):
 #     serializer_class = LoginSerializer
 #
@@ -145,40 +156,48 @@ class SignupAPIView(APIView):
 #                 return Response({'token': token.key})
 #             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-class LoginAPIView(APIView):
-    serializer_class = LoginSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
-
-            # Print statements to debug
-            print(f"Received username: {username}")
-            print(f"Received password: {password}")
-
-            user = authenticate(username=username, password=password)
-            if user:
-                print(f"User authenticated: {user.username}")
-
-                token, created = Token.objects.get_or_create(user=user)
-
-                # Print statement to check token creation
-                print(f"Token created: {token.key}")
-
-                return Response({'token': token.key})
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class LogoutAPIView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        request.user.auth_token.delete()
-        return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+# class LoginAPIView(APIView):
+#     serializer_class = LoginSerializer
+#
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         if serializer.is_valid():
+#             username = serializer.validated_data['username']
+#             password = serializer.validated_data['password']
+#
+#             # Print statements to debug
+#             print(f"Received username: {username}")
+#             print(f"Received password: {password}")
+#
+#             user = authenticate(username=username, password=password)
+#             if user:
+#                 print(f"User authenticated: {user.username}")
+#
+#                 token, created = Token.objects.get_or_create(user=user)
+#
+#                 # Print statement to check token creation
+#                 print(f"Token created: {token.key}")
+#
+#                 return Response({'token': token.key})
+#             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class UpdateSurveyAPIView(UpdateAPIView):
+#     serializer_class = SurveySerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_queryset(self):
+#         return Survey.objects.all()
+#
+#     def get_object(self):
+#         queryset = self.get_queryset()
+#         survey = get_object_or_404(queryset, pk=self.kwargs.get('survey_id'))
+#
+#         # Check if the current user is the creator of the survey
+#         if self.request.user != survey.creator:
+#             raise PermissionDenied("You do not have permission to update this survey.")
+#
+#         return survey
 
 
