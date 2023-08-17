@@ -1,12 +1,10 @@
 from django.test import TestCase
+from rest_framework.test import APITestCase
 from django.core import mail
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.utils import timezone
 from survey_app.models import Survey, Question, Option, Answer, UserProfile
 from survey_app.cron import DailySurveySubmissionsEmail
 
-class DailySurveySubmissionsEmailTestCase(TestCase):
+class DailySurveySubmissionsEmailTestCase(APITestCase):
     def setUp(self):
         # Create a test user
         self.user = UserProfile.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
