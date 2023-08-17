@@ -3,13 +3,13 @@ from django.core import mail
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
-from survey_app.models import Survey, Question, Option, Answer
+from survey_app.models import Survey, Question, Option, Answer, UserProfile
 from survey_app.cron import DailySurveySubmissionsEmail
 
 class DailySurveySubmissionsEmailTestCase(TestCase):
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
 
         # Create a test survey
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)

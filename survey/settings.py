@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os.path
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -89,9 +90,9 @@ WSGI_APPLICATION = 'survey.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'new_survey',
-        'USER': 'new_survey',
-        'PASSWORD': '123456',
+        'NAME': config('DATABASE_NAME'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '5432',  # Default PostgreSQL port
     }
@@ -139,12 +140,12 @@ EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'videotakvideo@gmail.com'
-EMAIL_HOST_PASSWORD = 'wvafyygjugpgnhcf'
-DEFAULT_FROM_EMAIL = 'videotakvideo@gmail.com'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 ANYMAIL = {
-    "SENDINBLUE_API_KEY": "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",
+    "SENDINBLUE_API_KEY": config("SENDINBLUE_API_KEY"),
 }
 
 

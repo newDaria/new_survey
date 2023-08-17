@@ -1,11 +1,10 @@
-from django.test import TestCase
 from survey_app.models import Survey, Question, Option, Answer
-# from django.contrib.auth.models import User
 from survey_app.models import UserProfile
+from rest_framework.test import APITestCase
 
-class SurveyModelTest(TestCase):
+class SurveyModelTest(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword',email='test@example.com')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
 
     def test_survey_title(self):
@@ -15,9 +14,9 @@ class SurveyModelTest(TestCase):
         self.assertEqual(self.survey.creator, self.user)
 
 
-class QuestionModelTest(TestCase):
+class QuestionModelTest(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword',email='test@example.com')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')
 
@@ -28,9 +27,9 @@ class QuestionModelTest(TestCase):
         self.assertEqual(self.question.survey, self.survey)
 
 
-class OptionModelTest(TestCase):
+class OptionModelTest(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')
         self.option = Option.objects.create(question=self.question, text='Test Option')
@@ -42,9 +41,9 @@ class OptionModelTest(TestCase):
         self.assertEqual(self.option.question, self.question)
 
 
-class AnswerModelTest(TestCase):
+class AnswerModelTest(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword',email='test@example.com')
         self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
         self.question = Question.objects.create(survey=self.survey, text='Test Question')
         self.option = Option.objects.create(question=self.question, text='Test Option')

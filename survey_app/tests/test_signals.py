@@ -1,13 +1,13 @@
-from django.test import TestCase
+from rest_framework.test import APITestCase
 from django.core import mail
-from django.contrib.auth.models import User
-from survey_app.models import Survey
+# from django.contrib.auth.models import User
+from survey_app.models import Survey, UserProfile
 from survey_app.signals import send_survey_creation_email
 
-class SurveyCreationEmailTestCase(TestCase):
+class SurveyCreationEmailAPITestCase(APITestCase):
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.user = UserProfile.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
 
     def test_send_survey_creation_email(self):
         # Create a test survey
