@@ -3,14 +3,16 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from survey_app.models import Survey, Question, Option, Answer
 from survey_app.models import UserProfile
+from survey_app.factories import SurveyFactory, QuestionFactory, OptionFactory, AnswerFactory,UserProfileFactory
+
 
 class SurveyQuestionsViewTestCase(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.user = UserProfileFactory()
         self.client.force_authenticate(user=self.user)
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
-        self.question = Question.objects.create(survey=self.survey, text='Test Question')
-        self.option = Option.objects.create(question=self.question, text='Test Option')
+        self.survey = SurveyFactory(creator=self.user)
+        self.question = QuestionFactory(survey=self.survey)
+        self.option = OptionFactory(question=self.question)
 
     def test_list_survey_questions(self):
         url = reverse('survey-questions', kwargs={'survey_pk': self.survey.pk})
@@ -22,10 +24,10 @@ class SurveyQuestionsViewTestCase(APITestCase):
 
 class QuestionOptionsViewTestCase(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
+        self.user = UserProfileFactory()
         self.client.force_authenticate(user=self.user)
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
-        self.question = Question.objects.create(survey=self.survey, text='Test Question')
+        self.survey = SurveyFactory(creator=self.user)
+        self.question = QuestionFactory(survey=self.survey)
 
     def test_list_question_options(self):
         url = reverse('question-options', kwargs={'question_pk': self.question.pk})

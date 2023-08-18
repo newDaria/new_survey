@@ -1,24 +1,10 @@
-from django.urls import reverse, resolve
+
 from rest_framework import status
-from rest_framework.test import APITestCase
-from survey_app.views import SurveyQuestionsView, QuestionOptionsView
 from survey_app.models import Survey, UserProfile
-from django.test import TestCase
-
-
-
-
 from django.urls import reverse, resolve
 from rest_framework.test import APITestCase
 from survey_app.views import SurveyQuestionsView, QuestionOptionsView
-
-from django.urls import reverse, resolve
-from rest_framework.test import APITestCase
-from survey_app.views import SurveyQuestionsView, QuestionOptionsView
-
-from django.urls import reverse, resolve
-from rest_framework.test import APITestCase
-from survey_app.views import SurveyQuestionsView, QuestionOptionsView
+from survey_app.factories import SurveyFactory, QuestionFactory, OptionFactory, AnswerFactory,UserProfileFactory
 
 class UrlsTest(APITestCase):
     def test_survey_questions_url(self):
@@ -36,9 +22,9 @@ class UrlsTest(APITestCase):
 
 class UpdateSurveyAPIViewTest(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword', email='test@example.com')
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
-        self.other_user = UserProfile.objects.create_user(username='otheruser', password='otherpassword', email='other_test@example.com')
+        self.user = UserProfileFactory()
+        self.survey = SurveyFactory(creator=self.user)
+        self.other_user = UserProfileFactory()
         self.client.force_authenticate(user=self.user)
 
     def test_update_survey_url_resolves(self):

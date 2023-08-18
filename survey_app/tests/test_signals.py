@@ -3,15 +3,15 @@ from django.core import mail
 # from django.contrib.auth.models import User
 from survey_app.models import Survey, UserProfile
 from survey_app.signals import send_survey_creation_email
+from survey_app.factories import SurveyFactory, QuestionFactory, OptionFactory, AnswerFactory,UserProfileFactory
 
 class SurveyCreationEmailAPITestCase(APITestCase):
     def setUp(self):
         # Create a test user
-        self.user = UserProfile.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
-
+        self.user = UserProfileFactory()
     def test_send_survey_creation_email(self):
         # Create a test survey
-        survey = Survey.objects.create(title='Test Survey', creator=self.user)
+        survey = SurveyFactory(creator=self.user)
 
         # Clear the mail.outbox before calling the signal to ensure only the email sent in this test is checked.
         mail.outbox = []

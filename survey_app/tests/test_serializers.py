@@ -1,13 +1,12 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APITestCase
-from survey_app.models import Survey, Question, Option, Answer
 from survey_app.serializers import OptionSerializer, QuestionSerializer, SurveySerializer, AnswerSerializer
 from survey_app.models import UserProfile
+from survey_app.factories import UserProfileFactory, SurveyFactory, QuestionFactory, OptionFactory
 
 class OptionSerializerAPITestCase(APITestCase):
     def test_option_serializer(self):
-        survey = Survey.objects.create(title='Test Survey')
-        question = Question.objects.create(text='Test Question', survey=survey)
+        question = QuestionFactory()
         option_data = {'text': 'Test Option', 'question': question.id}
         serializer = OptionSerializer(data=option_data)
         self.assertTrue(serializer.is_valid())
@@ -17,13 +16,12 @@ class OptionSerializerAPITestCase(APITestCase):
 
 class QuestionSerializerAPITestCase(APITestCase):
     def test_question_serializer(self):
-        user = UserProfile.objects.create_user(username='testuser', password='testpassword',
-                                               email='testuser@example.com')
+        user = UserProfileFactory()
         survey_data = {
             'title': 'Test Survey',
             'creator': user,
         }
-        survey = Survey.objects.create(**survey_data)
+        survey = SurveyFactory(**survey_data)
 
         question_data = {
             'text': 'Test Question',
@@ -35,10 +33,11 @@ class QuestionSerializerAPITestCase(APITestCase):
 
         self.assertEqual(question.text, 'Test Question')
         self.assertEqual(question.survey, survey)
+
 class SurveySerializerAPITestCase(APITestCase):
     def test_survey_serializer(self):
-        user = UserProfile.objects.create_user(username='testuser', password='testpassword',email='testuser@example.com')
-        survey_data = {'title': 'Test Survey', 'creator': user.id}
+        user = UserProfileFactory()
+        survey_data = {'title': 'Test Survey', 'creator': user.pk}  # Use user.pk
         serializer = SurveySerializer(data=survey_data)
         self.assertTrue(serializer.is_valid())
         survey = serializer.save()
@@ -47,10 +46,10 @@ class SurveySerializerAPITestCase(APITestCase):
 
 class AnswerSerializerAPITestCase(APITestCase):
     def setUp(self):
-        self.user = UserProfile.objects.create_user(username='testuser', password='testpassword', email='testuser@example.com')
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
-        self.question = Question.objects.create(survey=self.survey, text='Test Question')
-        self.option = Option.objects.create(question=self.question, text='Test Option')
+        self.user = UserProfileFactory()
+        self.survey = SurveyFactory(creator=self.user)
+        self.question = QuestionFactory(survey=self.survey)
+        self.option = OptionFactory(question=self.question)
 
     def test_answer_serializer(self):
         self.client.force_authenticate(user=self.user)
