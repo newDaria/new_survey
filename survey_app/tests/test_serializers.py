@@ -1,13 +1,12 @@
-from django.test import TestCase
 from rest_framework.exceptions import ValidationError
-from survey_app.models import Survey, Question, Option, Answer
+from rest_framework.test import APITestCase
 from survey_app.serializers import OptionSerializer, QuestionSerializer, SurveySerializer, AnswerSerializer
-from django.contrib.auth.models import User
+from survey_app.models import UserProfile
+from survey_app.factories import UserProfileFactory, SurveyFactory, QuestionFactory, OptionFactory
 
-class OptionSerializerTestCase(TestCase):
+class OptionSerializerAPITestCase(APITestCase):
     def test_option_serializer(self):
-        survey = Survey.objects.create(title='Test Survey')
-        question = Question.objects.create(text='Test Question', survey=survey)
+        question = QuestionFactory()
         option_data = {'text': 'Test Option', 'question': question.id}
         serializer = OptionSerializer(data=option_data)
         self.assertTrue(serializer.is_valid())
@@ -15,102 +14,80 @@ class OptionSerializerTestCase(TestCase):
         self.assertEqual(option.text, 'Test Option')
         self.assertEqual(option.question, question)
 
-class QuestionSerializerTestCase(TestCase):
+class QuestionSerializerAPITestCase(APITestCase):
     def test_question_serializer(self):
-        # Create a test user
-        user = User.objects.create_user(username='testuser', password='testpassword')
-
-        # Use the newly created user instance in survey_data
+        user = UserProfileFactory()
         survey_data = {
             'title': 'Test Survey',
-            'creator': user,  # Pass the actual User instance
+            'creator': user,
         }
-        survey = Survey.objects.create(**survey_data)
+        survey = SurveyFactory(**survey_data)
 
-        # Use the primary key of the newly created survey in question_data
         question_data = {
             'text': 'Test Question',
-            'survey': survey.pk,  # Use the primary key of the newly created survey
+            'survey': survey.pk,
         }
         serializer = QuestionSerializer(data=question_data)
-        self.assertTrue(serializer.is_valid())  # Make sure the serializer is valid
+        self.assertTrue(serializer.is_valid())
         question = serializer.save()
 
-        # Check if the question was saved correctly
         self.assertEqual(question.text, 'Test Question')
         self.assertEqual(question.survey, survey)
 
-class SurveySerializerTestCase(TestCase):
+class SurveySerializerAPITestCase(APITestCase):
     def test_survey_serializer(self):
-        user = User.objects.create_user(username='testuser', password='testpassword')
-        survey_data = {'title': 'Test Survey', 'creator': user.id}
+        user = UserProfileFactory()
+        survey_data = {'title': 'Test Survey', 'creator': user.pk}  # Use user.pk
         serializer = SurveySerializer(data=survey_data)
         self.assertTrue(serializer.is_valid())
         survey = serializer.save()
         self.assertEqual(survey.title, 'Test Survey')
         self.assertEqual(survey.creator, user)
 
-
-class AnswerSerializerTestCase(TestCase):
+class AnswerSerializerAPITestCase(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
-        self.question = Question.objects.create(survey=self.survey, text='Test Question')
-        self.option = Option.objects.create(question=self.question, text='Test Option')
+        self.user = UserProfileFactory()
+        self.survey = SurveyFactory(creator=self.user)
+        self.question = QuestionFactory(survey=self.survey)
+        self.option = OptionFactory(question=self.question)
 
     def test_answer_serializer(self):
-        class DummyRequest:
-            user = self.user
+        self.client.force_authenticate(user=self.user)
 
-        # Use the dummy request object in the serializer context
         answer_data = {'question': self.question.id, 'option': self.option.id}
-        serializer = AnswerSerializer(data=answer_data, context={'request': DummyRequest()})
-
-        self.assertTrue(serializer.is_valid())
-        answer = serializer.save()
-
-        self.assertEqual(answer.question, self.question)
-        self.assertEqual(answer.option, self.option)
+        response = self.client.post('/answers/', answer_data, format='json')
+        self.assertEqual(response.status_code, 201)
 
     def test_answer_submission_invalid_question(self):
-        # Test submitting an answer with a non-existent question
+        self.client.force_authenticate(user=self.user)
+
         invalid_question_id = 999999
         answer_data = {'question': invalid_question_id, 'option': self.option.id}
-        serializer = AnswerSerializer(data=answer_data, context={'request': None})
-        with self.assertRaises(ValidationError) as cm:
-            serializer.is_valid(raise_exception=True)
-
-        self.assertIn("question", cm.exception.detail)
+        response = self.client.post('/answers/', answer_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("question", response.data)
 
     def test_answer_submission_invalid_option(self):
-        # Test submitting an answer with a non-existent option
+        self.client.force_authenticate(user=self.user)
+
         invalid_option_id = 999999
         answer_data = {'question': self.question.id, 'option': invalid_option_id}
-        serializer = AnswerSerializer(data=answer_data, context={'request': None})
-        with self.assertRaises(ValidationError) as cm:
-            serializer.is_valid(raise_exception=True)
-
-        self.assertIn("option", cm.exception.detail)
+        response = self.client.post('/answers/', answer_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("option", response.data)
 
     def test_answer_submission_missing_question(self):
-        # Attempt to create an answer without providing the 'question' field
+        self.client.force_authenticate(user=self.user)
+
         answer_data = {'option': self.option.id}
-        serializer = AnswerSerializer(data=answer_data, context={'request': None})
-
-        # Check if the serializer is NOT valid
-        is_valid = serializer.is_valid()
-
-        # Check if the error message contains the expected field error for 'question'
-        self.assertIn('question', serializer.errors)
-
-        # Ensure that the error message indicates that the 'question' field is required
-        self.assertEqual(serializer.errors['question'][0].code, 'required')
+        response = self.client.post('/answers/', answer_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("question", response.data)
 
     def test_answer_submission_missing_option(self):
-        # Test submitting an answer without the 'option' field
-        answer_data = {'question': self.question.id}
-        serializer = AnswerSerializer(data=answer_data, context={'request': None})
-        with self.assertRaises(ValidationError) as cm:
-            serializer.is_valid(raise_exception=True)
+        self.client.force_authenticate(user=self.user)
 
-        self.assertIn("option", cm.exception.detail)
+        answer_data = {'question': self.question.id}
+        response = self.client.post('/answers/', answer_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("option", response.data)

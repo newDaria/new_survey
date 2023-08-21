@@ -1,40 +1,30 @@
-from django.urls import resolve
-from survey_app.views import SurveyQuestionsView, QuestionOptionsView, UpdateSurveyAPIView
-from survey_app.views import UpdateSurveyAPIView
-from django.test import TestCase
-from django.urls import reverse
+
 from rest_framework import status
-from rest_framework.test import APIClient
-from django.contrib.auth.models import User
-from survey_app.models import Survey
+from survey_app.models import Survey, UserProfile
+from django.urls import reverse, resolve
+from rest_framework.test import APITestCase
+from survey_app.views import SurveyQuestionsView, QuestionOptionsView
+from survey_app.factories import SurveyFactory, QuestionFactory, OptionFactory, AnswerFactory,UserProfileFactory
 
-
-class UrlsTest(TestCase):
+class UrlsTest(APITestCase):
     def test_survey_questions_url(self):
         url = reverse('survey-questions', kwargs={'survey_pk': 1})
         resolved_view = resolve(url).func
-        self.assertEqual(resolved_view.__name__, 'SurveyQuestionsView')
+        expected_view_name = SurveyQuestionsView.as_view({'get': 'list'}).__name__
+        self.assertEqual(resolved_view.__name__, expected_view_name)
 
     def test_question_options_url(self):
         url = reverse('question-options', kwargs={'question_pk': 1})
         resolved_view = resolve(url).func
-        self.assertEqual(resolved_view.__name__, 'QuestionOptionsView')
+        expected_view_name = QuestionOptionsView.as_view({'get': 'list', 'post': 'create'}).__name__
+        self.assertEqual(resolved_view.__name__, expected_view_name)
 
 
-
-class UpdateSurveyAPIViewTest(TestCase):
+class UpdateSurveyAPIViewTest(APITestCase):
     def setUp(self):
-        # Create a test user
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-
-        # Create a survey belonging to the test user
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
-
-        # Create a regular user (not the creator of the survey)
-        self.other_user = User.objects.create_user(username='otheruser', password='otherpassword')
-
-        # Create an authenticated client for the test user
-        self.client = APIClient()
+        self.user = UserProfileFactory()
+        self.survey = SurveyFactory(creator=self.user)
+        self.other_user = UserProfileFactory()
         self.client.force_authenticate(user=self.user)
 
     def test_update_survey_url_resolves(self):
@@ -44,18 +34,14 @@ class UpdateSurveyAPIViewTest(TestCase):
 
     def test_update_survey_by_creator(self):
         url = reverse('update-survey', kwargs={'survey_id': self.survey.id})
-        updated_data = {'title': 'Updated Survey', 'creator': self.user.id}  # Add the 'creator' field
+        updated_data = {'title': 'Updated Survey', 'creator': self.user.id}
         response = self.client.put(url, updated_data)
-        if response.status_code != status.HTTP_200_OK:
-            print(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.survey.refresh_from_db()
         self.assertEqual(self.survey.title, 'Updated Survey')
 
     def test_update_survey_by_non_creator(self):
-        # Change the authenticated user to the non-creator user
         self.client.force_authenticate(user=self.other_user)
-
         url = reverse('update-survey', kwargs={'survey_id': self.survey.id})
         updated_data = {'title': 'Updated Survey'}
         response = self.client.put(url, updated_data)

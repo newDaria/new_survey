@@ -1,19 +1,20 @@
-from django.test import TestCase
-from django.contrib.auth.models import User
-from rest_framework.request import Request
-from rest_framework.views import APIView
-from rest_framework.test import APIRequestFactory
-from survey_app.models import Survey
-from survey_app.permissions import CanUpdateSurveyPermission
 
-class CanUpdateSurveyPermissionTestCase(TestCase):
+# from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.test import APITestCase, APIRequestFactory
+from survey_app.models import Survey, UserProfile
+from survey_app.permissions import CanUpdateSurveyPermission
+from survey_app.factories import SurveyFactory, QuestionFactory, OptionFactory, AnswerFactory,UserProfileFactory
+
+
+class CanUpdateSurveyPermissionAPITestCase(APITestCase):
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
-        self.other_user = User.objects.create_user(username='otheruser', email='other@example.com', password='testpassword')
+        self.user = UserProfileFactory()
+        self.other_user = UserProfileFactory()
 
         # Create a test survey for the test user
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
+        self.survey = SurveyFactory(creator=self.user)
 
         # Create an API request factory
         self.factory = APIRequestFactory()

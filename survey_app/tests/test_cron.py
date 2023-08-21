@@ -1,24 +1,22 @@
 from django.test import TestCase
+from rest_framework.test import APITestCase
 from django.core import mail
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.utils import timezone
-from survey_app.models import Survey, Question, Option, Answer
+from survey_app.models import Survey, Question, Option, Answer, UserProfile
 from survey_app.cron import DailySurveySubmissionsEmail
+from survey_app.factories import SurveyFactory, QuestionFactory, OptionFactory, AnswerFactory,UserProfileFactory
 
-class DailySurveySubmissionsEmailTestCase(TestCase):
+class DailySurveySubmissionsEmailTestCase(APITestCase):
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.user = UserProfileFactory()
 
         # Create a test survey
-        self.survey = Survey.objects.create(title='Test Survey', creator=self.user)
-
+        self.survey = SurveyFactory(creator=self.user)
     def test_daily_survey_submissions_email(self):
         # Create a test answer for the survey
-        question = Question.objects.create(survey=self.survey, text='Test Question')
-        option = Option.objects.create(question=question, text='Test Option')
-        answer = Answer.objects.create(question=question, option=option)
+        self.question = QuestionFactory(survey=self.survey)
+        self.option = OptionFactory(question=self.question)
+        self.answer = AnswerFactory(question=self.question, option=self.option, creator=self.user)
 
         # Clear the mail.outbox before running the cron job to ensure only the email sent in this test is checked.
         mail.outbox = []
